@@ -6,6 +6,12 @@ import urllib.request as urlrequest
 global api_url
 global authtoken
 
+# Bib record ID
+hold_target = 1519590
+
+# ID for hold linked to this script's login account
+hold_details_id = 58001146
+
 def do_help(stat = 0):
 
     print (''' 
@@ -86,16 +92,25 @@ fines_response = api_request(
     'open-ils.actor', 'open-ils.actor.user.fines.summary',
     authtoken, user_id)
 
-# XXX hard-coded object array indices (see fm_IDL.xml)
-fines = fines_response[0]['__p']
-print(
-    '\nFines Summary: \nBalance Owed: $%0.2f, Total Owed $%0.2f, Total Paid $%0.2f\n'
-    % (float(fines[0]), float(fines[1]), float(fines[2])))
-    
+vital_stats_resp = api_request('open-ils.actor',
+    'open-ils.actor.user.opac.vital_stats', authtoken, user_id)
+
+vital_stats = vital_stats_resp[0]
+
+print('User has %d holds ready' % vital_stats['holds']['ready'])
+
 # List of user holds
 holds_resp = api_request('open-ils.circ', 
     'open-ils.circ.holds.retrieve', authtoken, user_id)
 
+create_hold_resp = api_request('open-ils.circ',
+    'open-ils.circ.holds.test_and_create.batch',
+    authtoken, {'hold_type': 'T', 'patronid': user_id}, [hold_target])
 
+# Details for one hold by ID.
+# Note the hold must be linked to the same account used by this script
+hold_details_resp = api_request('open-ils.circ',
+    'open-ils.circ.hold.details.retrieve', 
+    authtoken, hold_details_id)
 
 
