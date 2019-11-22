@@ -7,7 +7,9 @@ global api_url
 global authtoken
 
 # Bib record ID
-hold_target = 1519590
+hold_target = 137229
+
+hold_pickup_lib = 1533 # RE
 
 # ID for hold linked to this script's login account
 hold_details_id = 58001146
@@ -104,8 +106,12 @@ holds_resp = api_request('open-ils.circ',
     'open-ils.circ.holds.retrieve', authtoken, user_id)
 
 create_hold_resp = api_request('open-ils.circ',
-    'open-ils.circ.holds.test_and_create.batch',
-    authtoken, {'hold_type': 'T', 'patronid': user_id}, [hold_target])
+    'open-ils.circ.holds.test_and_create.batch', authtoken, {
+        'hold_type': 'T',
+        'patronid': user_id,
+        'pickup_lib': hold_pickup_lib
+    }, 
+    [hold_target])
 
 # Details for one hold by ID.
 # Note the hold must be linked to the same account used by this script
