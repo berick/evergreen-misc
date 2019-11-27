@@ -107,7 +107,6 @@ print('User has %d holds ready' % vital_stats['holds']['ready'])
 holds_resp = api_request('open-ils.circ', 
     'open-ils.circ.holds.retrieve', authtoken, user_id)
 
-''' XXX Commented out for testing
 create_hold_resp = api_request('open-ils.circ',
     'open-ils.circ.holds.test_and_create.batch', authtoken, {
         'hold_type': 'T',
@@ -115,7 +114,6 @@ create_hold_resp = api_request('open-ils.circ',
         'pickup_lib': hold_pickup_lib
     }, 
     [hold_target])
-'''
 
 # Details for one hold by ID.
 # Note the hold must be linked to the same account used by this script
