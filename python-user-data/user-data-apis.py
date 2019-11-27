@@ -14,6 +14,8 @@ hold_pickup_lib = 1533 # RE
 # ID for hold linked to this script's login account
 hold_details_id = 58001146
 
+renew_barcode = 'abcdefghijk'
+
 def do_help(stat = 0):
 
     print (''' 
@@ -105,6 +107,7 @@ print('User has %d holds ready' % vital_stats['holds']['ready'])
 holds_resp = api_request('open-ils.circ', 
     'open-ils.circ.holds.retrieve', authtoken, user_id)
 
+''' XXX Commented out for testing
 create_hold_resp = api_request('open-ils.circ',
     'open-ils.circ.holds.test_and_create.batch', authtoken, {
         'hold_type': 'T',
@@ -112,11 +115,26 @@ create_hold_resp = api_request('open-ils.circ',
         'pickup_lib': hold_pickup_lib
     }, 
     [hold_target])
+'''
 
 # Details for one hold by ID.
 # Note the hold must be linked to the same account used by this script
 hold_details_resp = api_request('open-ils.circ',
     'open-ils.circ.hold.details.retrieve', 
     authtoken, hold_details_id)
+
+
+renew_resp = api_request('open-ils.circ',
+    'open-ils.circ.renew', authtoken, {'copy_barcode': renew_barcode})
+
+first_event = renew_resp[0]
+
+if type(first_event) is 'list':
+    first_event = first_event[0]
+
+if first_event['textcode'] == 'SUCCESS':
+    print("Renewal succeeded")
+else:
+    print("Renewal Failed %s" % repr(first_event))
 
 
