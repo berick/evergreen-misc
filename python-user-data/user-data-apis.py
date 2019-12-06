@@ -121,6 +121,25 @@ hold_details_resp = api_request('open-ils.circ',
     'open-ils.circ.hold.details.retrieve', 
     authtoken, hold_details_id)
 
+hold_data = hold_details_resp[0]
+
+# If we have a hold matching the ID, suspend or activate the hold
+if hold_data is not None:
+    hold = hold_data['hold']
+
+    # exctract the value for the 'frozen' field (frozen == suspended)
+    frozen = hold['__p'][30] # XXX hack
+
+    print('Hold frozen state is ', frozen)
+
+    # reverse the frozen state to suspend or activate the hold
+    frozen = 't' if frozen == 'f' else 'f'
+
+    # Update the hold
+    hold_update_resp = api_request('open-ils.circ',
+        'open-ils.circ.hold.update', authtoken, None,
+        {'id': hold_details_id, 'frozen': frozen})
+
 
 renew_resp = api_request('open-ils.circ',
     'open-ils.circ.renew', authtoken, {'copy_barcode': renew_barcode})
@@ -134,5 +153,4 @@ if first_event['textcode'] == 'SUCCESS':
     print("Renewal succeeded")
 else:
     print("Renewal Failed %s" % repr(first_event))
-
 
